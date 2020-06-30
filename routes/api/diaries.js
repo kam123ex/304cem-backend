@@ -8,11 +8,26 @@ const Diary = require("../../mondel/Diary");
 
 router.get("/", (req, res) => {
   Diary.find()
-    .then((result) => {
-      return res.status(201).json({
-        diaries: result,
-        success: true,
-      });
+    .select("title content date _id")
+    .exec()
+    .then((docs) => {
+      const response = {
+        count: docs.length,
+        diaries: docs.map((doc) => {
+          return {
+            title: doc.title,
+            content: doc.content,
+            date: doc.date,
+            _id: doc._id,
+            request: {
+              type: "GET",
+              url:
+                "https://backend-304cem.herokuapp.com/api/diaries/" + doc._id,
+            },
+          };
+        }),
+      };
+      res.status(200).json(response);
     })
     .catch((err) => {
       console.log(err);
