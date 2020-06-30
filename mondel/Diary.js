@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-// Create the User Schema
+// Create the Diary Schema
 const DiarySchema = new Schema({
   _id: mongoose.Schema.Types.ObjectId,
   title: {

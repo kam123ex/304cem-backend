@@ -15,7 +15,6 @@ router.post("/register", (req, res) => {
       msg: "Password do not match",
     });
   }
-
   // Check Email unique
   User.findOne({
     username: username,
@@ -103,68 +102,70 @@ router.post("/login", (req, res) => {
     });
   });
 });
-
-router.put("/update/:id", (req, res) => {
-  const id = req.params.id;
-  let user = {
-    name: req.body.name,
-    username: req.body.username,
-    email: req.body.email,
-    password: req.body.password,
-  };
-  bcrypt.genSalt(10, (err, salt) => {
-    bcrypt.hash(user.password, salt, (err, hash) => {
-      if (err) throw err;
-      user.password = hash;
-      User.updateOne({ _id: id }, { $set: user })
-        .exec()
-        .then((result) => {
-          console.log(result);
-          return res.status(201).json({
-            success: true,
-            msg: "User updated!",
-          });
-        })
-        .catch((err) => {
-          console.log(err);
-          return res.status(500).json({
-            msg: err,
-          });
+// Router update api/users/:id
+router.put(
+  "/update/:id",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const id = req.params.id;
+    let user = {
+      name: req.body.name,
+      username: req.body.username,
+      email: req.body.email,
+    };
+    console.log(user);
+    User.updateOne({ _id: id }, { $set: user })
+      .exec()
+      .then((result) => {
+        console.log(result);
+        return res.status(201).json({
+          success: true,
+          msg: "User updated!",
         });
-    });
-  });
-  //   User.updateOne({ _id: id }, { $set: user })
-  //     .exec()
-  //     .then((result) => {
-  //       console.log(result);
-  //       return res.status(200).json({
-  //         success: true,
-  //         msg: "User updated",
-  //       });
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //       return res.status(500).json({
-  //         msg: err,
-  //       });
-  //     });
-});
-
-router.delete("/delete/:userId", (req, res) => {
-  const id = req.params.id;
-  User.remove({ _id: id })
-    .then((result) => {
-      res.status(200).json({
-        msg: "User deleted",
+      })
+      .catch((err) => {
+        console.log(err);
+        return res.status(500).json({
+          msg: err,
+        });
       });
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.status(500).json({
-        msg: err,
+    //   User.updateOne({ _id: id }, { $set: user })
+    //     .exec()
+    //     .then((result) => {
+    //       console.log(result);
+    //       return res.status(200).json({
+    //         success: true,
+    //         msg: "User updated",
+    //       });
+    //     })
+    //     .catch((err) => {
+    //       console.log(err);
+    //       return res.status(500).json({
+    //         msg: err,
+    //       });
+    //     });
+  }
+);
+// Router Delete api/users/delete
+router.delete(
+  "/delete/:userId",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const id = req.params.id;
+    User.remove({ _id: id })
+      .then((result) => {
+        res.status(200).json({
+          msg: "User deleted",
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        return res.status(500).json({
+          msg: err,
+        });
       });
-    });
-});
+  }
+);
 
 // Router Get api/users/profile
 router.get(
