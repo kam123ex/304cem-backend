@@ -52,10 +52,12 @@ const users = require("./routes/api/users");
 const diaries = require("./routes/api/diaries");
 app.use("/api/users", users);
 app.use("/api/diaries", diaries);
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/index.html"));
+app.get("/", (req, res) => {
+  res.send("HELLO");
 });
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(__dirname, "public/index.html"));
+// });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
