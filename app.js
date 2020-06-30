@@ -1,14 +1,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const http = require("http");
 const path = require("path");
 const cors = require("cors");
 const passport = require("passport");
 const morgan = require("morgan");
 // Init app
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Middlewares
 
@@ -54,15 +52,18 @@ const users = require("./routes/api/users");
 const diaries = require("./routes/api/diaries");
 app.use("/api/users", users);
 app.use("/api/diaries", diaries);
-
-app.get("/port", (req, res) => {
-  res.send(`Server started on http://localhost:${PORT} `);
+app.get("/", (req, res) => {
+  res.send("Hello");
 });
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "public/index.html"));
-// });
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/index.html"));
+});
+const http = require("http");
+const PORT = process.env.PORT || 3000;
 
 const server = http.createServer(app);
-server.listen(PORT, () => {
-  console.log(`Server started on http://localhost:${PORT} `);
-});
+server.listen(PORT);
+
+// app.listen(PORT, () => {
+//   console.log(`Server started on http://localhost:${PORT} `);
+// });
