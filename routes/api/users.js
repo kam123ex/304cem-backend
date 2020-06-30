@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const key = require("../../config/keys").secret;
 const passport = require("passport");
+const mongoose = require("mongoose");
 const User = require("../../mondel/User");
 
 // Router Post api/user/register
@@ -35,6 +36,7 @@ router.post("/register", (req, res) => {
     }
   });
   let newUser = new User({
+    _id: new mongoose.Types.ObjectId(),
     name,
     username,
     password,
@@ -81,7 +83,7 @@ router.post("/login", (req, res) => {
           payload,
           key,
           {
-            expiresIn: 604800,
+            expiresIn: "1h",
           },
           (err, token) => {
             res.status(200).json({
@@ -102,6 +104,68 @@ router.post("/login", (req, res) => {
   });
 });
 
+router.put("/update/:id", (req, res) => {
+  const id = req.params.id;
+  let user = {
+    name: req.body.name,
+    username: req.body.username,
+    email: req.body.email,
+    password: req.body.password,
+  };
+  bcrypt.genSalt(10, (err, salt) => {
+    bcrypt.hash(user.password, salt, (err, hash) => {
+      if (err) throw err;
+      user.password = hash;
+      User.updateOne({ _id: id }, { $set: user })
+        .exec()
+        .then((result) => {
+          console.log(result);
+          return res.status(201).json({
+            success: true,
+            msg: "User updated!",
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+          return res.status(500).json({
+            msg: err,
+          });
+        });
+    });
+  });
+  //   User.updateOne({ _id: id }, { $set: user })
+  //     .exec()
+  //     .then((result) => {
+  //       console.log(result);
+  //       return res.status(200).json({
+  //         success: true,
+  //         msg: "User updated",
+  //       });
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //       return res.status(500).json({
+  //         msg: err,
+  //       });
+  //     });
+});
+
+router.delete("/delete/:userId", (req, res) => {
+  const id = req.params.id;
+  User.remove({ _id: id })
+    .then((result) => {
+      res.status(200).json({
+        msg: "User deleted",
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(500).json({
+        msg: err,
+      });
+    });
+});
+
 // Router Get api/users/profile
 router.get(
   "/profile",
@@ -109,6 +173,7 @@ router.get(
   (req, res) => {
     return res.json({
       user: req.user,
+      msg: "HI",
     });
   }
 );
